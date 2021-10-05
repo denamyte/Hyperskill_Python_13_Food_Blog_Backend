@@ -180,6 +180,12 @@ files:
 - name: blog.py
   visible: true
   learner_created: false
+- name: ini_db.py
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/167/stages/864/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Tue, 05 Oct 2021 01:29:53 UTC
 record: -1
