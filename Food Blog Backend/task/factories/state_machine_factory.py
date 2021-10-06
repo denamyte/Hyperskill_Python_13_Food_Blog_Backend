@@ -1,0 +1,3 @@
+class StateMachineFactory:
+    ...
+    # todo Implement

@@ -12,8 +12,10 @@ def ini_db(db_name: str):
     conn = connect(db_name)
     cursor = conn.cursor()
     if not table_created(conn, 'meals'):
-        create_and_populate_tables(cursor)
-        conn.commit()
+        create_and_populate_helper_tables(cursor)
+    if not table_created(conn, 'recipes'):
+        create_recipe_table(cursor)
+    conn.commit()
     cursor.close()
     conn.close()
 
@@ -24,7 +26,7 @@ def table_created(conn: Connection, table_name: str):
     return c.fetchone()[0] == 1
 
 
-def create_and_populate_tables(cursor: Cursor):
+def create_and_populate_helper_tables(cursor: Cursor):
     for name in DATA.keys():
         cursor.execute('''CREATE TABLE {0}s(
                               {0}_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,3 +35,11 @@ def create_and_populate_tables(cursor: Cursor):
         ins_sql = 'INSERT INTO {0}s({0}_name) VALUES(?);'.format(name[:-1])
         values = [(value,) for value in DATA[name]]
         cursor.executemany(ins_sql, values)
+
+
+def create_recipe_table(cursor: Cursor):
+    cursor.execute('''CREATE TABLE recipe(
+                          recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                          recipe_name TEXT NOT NULL,
+                          recipe_description TEXT
+                      )''')
