@@ -7,16 +7,16 @@ class StateTransition:
     its name, the dictionary of possible next states, and the means
     to switch the state from the current state to a possible state.
     """
-    def __init__(self, state_name: str, input_to_state_dict: Dict[int, str], input_generator: Callable[[], int]):
+    def __init__(self, state: str, input_to_state_dict: Dict[int, str], input_generator: Callable[[], int]):
         """
         Creates an instance of a state switcher.
 
-        :param state_name: The state name
+        :param state: The current state
         :param input_to_state_dict: the dictionary of the predefined state names
-        which current state can be switch to
+        which current state can be switched to
         :param input_generator: The function for generating one of input_to_state_dict keys
         """
-        self._state_name = state_name
+        self._state = state
         self._input_to_state_dict = input_to_state_dict
         self._input_generator = input_generator
 
@@ -29,4 +29,4 @@ class StateTransition:
 
     @property
     def state_name(self):
-        return self._state_name
+        return self._state
