@@ -15,3 +15,6 @@ class RecipeItem:
     @property
     def desc(self):
         return self._description
+
+    def __str__(self):
+        return f'RecipeItem({self.name}, {self.desc})'

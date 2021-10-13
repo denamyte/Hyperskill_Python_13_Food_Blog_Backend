@@ -184,7 +184,16 @@ files:
 
 
   learner_created: false
+- name: blog.py
+  visible: true
+  learner_created: false
+- name: __init__.py
+  visible: true
+  learner_created: true
 - name: state/state_switcher.py
+  visible: true
+  learner_created: true
+- name: food_blog_menus.py
   visible: true
   learner_created: true
 - name: dao/recipe_item.py
@@ -193,10 +202,13 @@ files:
 - name: factories/state_machine_factory.py
   visible: true
   learner_created: true
-- name: blog.py
-  visible: true
-  learner_created: false
 - name: state/state_transition.py
+  visible: true
+  learner_created: true
+- name: current_state_data.py
+  visible: true
+  learner_created: true
+- name: dao/recipe_dao.py
   visible: true
   learner_created: true
 - name: ini_db.py
@@ -237,18 +249,6 @@ files:
             ins_sql = 'INSERT INTO {0}s({0}_name) VALUES(?);'.format(name[:-1])
             values = [(value,) for value in DATA[name]]
             cursor.executemany(ins_sql, values)
-  learner_created: true
-- name: __init__.py
-  visible: true
-  learner_created: true
-- name: food_blog_menus.py
-  visible: true
-  learner_created: true
-- name: current_state_data.py
-  visible: true
-  learner_created: true
-- name: dao/recipe_dao.py
-  visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/167/stages/865/implement#comment
 status: Unchecked
