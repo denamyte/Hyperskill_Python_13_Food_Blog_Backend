@@ -1,55 +1,6 @@
 type: edu
 custom_name: Time for recipes!
 files:
-- name: blog.py
-  visible: true
-  text: |
-    from sys import argv
-
-    from ini_db import ini_db
-
-    _, db_name = argv
-    ini_db(db_name)
-  learner_created: false
-- name: ini_db.py
-  visible: true
-  text: |
-    from sqlite3 import connect, Connection, Cursor
-
-    DATA = {"meals": ("breakfast", "brunch", "lunch", "supper"),
-            "ingredients": ("milk", "cacao", "strawberry", "blueberry", "blackberry", "sugar"),
-            "measures": ("ml", "g", "l", "cup", "tbsp", "tsp", "dsp", "")}
-    NOT_NULL = {"meals": "NOT NULL",
-                "ingredients": "NOT NULL",
-                "measures": ""}
-
-
-    def ini_db(db_name: str):
-        conn = connect(db_name)
-        cursor = conn.cursor()
-        if not table_created(conn, 'meals'):
-            create_and_populate_tables(cursor)
-            conn.commit()
-        cursor.close()
-        conn.close()
-
-
-    def table_created(conn: Connection, table_name: str):
-        c = conn.cursor()
-        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
-        return c.fetchone()[0] == 1
-
-
-    def create_and_populate_tables(cursor: Cursor):
-        for name in DATA.keys():
-            cursor.execute('''CREATE TABLE {0}s(
-                                  {0}_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                  {0}_name TEXT {1} UNIQUE
-                           );'''.format(name[:-1], NOT_NULL[name]))
-            ins_sql = 'INSERT INTO {0}s({0}_name) VALUES(?);'.format(name[:-1])
-            values = [(value,) for value in DATA[name]]
-            cursor.executemany(ins_sql, values)
-  learner_created: false
 - name: tests.py
   visible: false
   text: |+
@@ -236,12 +187,67 @@ files:
 - name: food_blog_menus.py
   visible: true
   learner_created: true
+- name: blog.py
+  visible: true
+  text: |
+    from sys import argv
+
+    from ini_db import ini_db
+
+    _, db_name = argv
+    ini_db(db_name)
+  learner_created: false
+- name: ini_db.py
+  visible: true
+  text: |
+    from sqlite3 import connect, Connection, Cursor
+
+    DATA = {"meals": ("breakfast", "brunch", "lunch", "supper"),
+            "ingredients": ("milk", "cacao", "strawberry", "blueberry", "blackberry", "sugar"),
+            "measures": ("ml", "g", "l", "cup", "tbsp", "tsp", "dsp", "")}
+    NOT_NULL = {"meals": "NOT NULL",
+                "ingredients": "NOT NULL",
+                "measures": ""}
+
+
+    def ini_db(db_name: str):
+        conn = connect(db_name)
+        cursor = conn.cursor()
+        if not table_created(conn, 'meals'):
+            create_and_populate_tables(cursor)
+            conn.commit()
+        cursor.close()
+        conn.close()
+
+
+    def table_created(conn: Connection, table_name: str):
+        c = conn.cursor()
+        c.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name=?", (table_name,))
+        return c.fetchone()[0] == 1
+
+
+    def create_and_populate_tables(cursor: Cursor):
+        for name in DATA.keys():
+            cursor.execute('''CREATE TABLE {0}s(
+                                  {0}_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                  {0}_name TEXT {1} UNIQUE
+                           );'''.format(name[:-1], NOT_NULL[name]))
+            ins_sql = 'INSERT INTO {0}s({0}_name) VALUES(?);'.format(name[:-1])
+            values = [(value,) for value in DATA[name]]
+            cursor.executemany(ins_sql, values)
+  learner_created: false
 - name: current_state_data.py
   visible: true
   learner_created: true
-- name: __init__.py
+- name: state/state_machine.py
   visible: true
   learner_created: true
-feedback_link: https://hyperskill.org/projects/167/stages/865/implement#comment
+- name: state_machine_factory.py
+  visible: true
+  learner_created: true
+- name: food_blog.db
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/12375#comment
 status: Unchecked
 record: -1
