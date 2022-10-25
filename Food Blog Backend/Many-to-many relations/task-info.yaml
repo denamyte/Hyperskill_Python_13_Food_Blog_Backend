@@ -362,9 +362,12 @@ files:
             return {st.state_name: st for st in trans_list}
 
   learner_created: true
+- name: food_blog.db
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/12376#comment
 status: Solved
 feedback:
   message: Congratulations!
-  time: Tue, 25 Oct 2022 22:29:44 UTC
+  time: Tue, 25 Oct 2022 22:34:27 UTC
 record: -1

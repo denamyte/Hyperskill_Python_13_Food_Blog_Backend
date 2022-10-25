@@ -11,6 +11,7 @@ NOT_NULL = {"meals": "NOT NULL",
 
 def ini_db(db_name: str):
     dba = DatabaseAccess(db_name)
+    dba.cursor.execute('PRAGMA foreign_keys = ON;')
     if not table_created(dba.cursor, 'meals'):
         create_and_populate_helper_tables(dba.cursor)
         create_recipe_table(dba.cursor)
