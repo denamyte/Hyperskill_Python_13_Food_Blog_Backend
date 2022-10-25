@@ -311,29 +311,6 @@ files:
             while len(self._state):
                 self._state = self._transition_dict.get(self._state).next_state()
   learner_created: true
-- name: current_state_data.py
-  visible: true
-  text: |
-    from dao.recipe_dao import RecipeDao, RecipeItem
-
-
-    class RecipeDataFacade:
-
-        def __init__(self, recipe_dao: RecipeDao):
-            self.recipe_dao = recipe_dao
-            self._recipe: RecipeItem = RecipeItem()
-
-        def set_name(self, name: str):
-            self._recipe.name = name
-
-        def set_desc(self, desc: str):
-            self._recipe.desc = desc
-
-        def save_recipe(self) -> int:
-            item_id = self.recipe_dao.save_recipe(self._recipe)
-            self._recipe = RecipeItem()
-            return item_id
-  learner_created: true
 - name: state_machine_factory.py
   visible: true
   text: |+
@@ -385,15 +362,9 @@ files:
             return {st.state_name: st for st in trans_list}
 
   learner_created: true
-- name: food_blog.db-journal
-  visible: true
-  learner_created: true
-- name: food_blog.db
-  visible: true
-  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/12376#comment
 status: Solved
 feedback:
   message: Congratulations!
-  time: Tue, 25 Oct 2022 22:25:00 UTC
+  time: Tue, 25 Oct 2022 22:29:44 UTC
 record: -1
