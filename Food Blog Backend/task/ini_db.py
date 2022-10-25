@@ -38,7 +38,7 @@ def create_and_populate_helper_tables(cursor: Cursor):
 
 
 def create_recipe_table(cursor: Cursor):
-    cursor.execute('''CREATE TABLE recipe(
+    cursor.execute('''CREATE TABLE recipes(
                           recipe_id INTEGER PRIMARY KEY AUTOINCREMENT,
                           recipe_name TEXT NOT NULL,
                           recipe_description TEXT

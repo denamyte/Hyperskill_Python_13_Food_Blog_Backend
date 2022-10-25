@@ -1,12 +1,12 @@
 from typing import Dict
 
-from state_transition import StateTransition
+from .state_transition import StateTransition
 
 
-class StateSwitcher:
+class StateMachineRunner:
     """
-    A class for switching states for the State Machin implementation
-    until the current state become a terminal one
+    A class for switching states, for the State Machine implementation,
+    until the current state becomes a terminal one
     """
     def __init__(self, transition_dict: Dict[str, StateTransition], initial_state: str):
         self._transition_dict = transition_dict

@@ -1,4 +1,4 @@
-from current_state_data import CurrentStateDataFacade
+from current_state_data import RecipeDataFacade
 
 
 def return_0(fn):
@@ -9,8 +9,8 @@ def return_0(fn):
 
 
 class FoodBlogMenus:
-    def __init__(self, data_facade: CurrentStateDataFacade):
-        self._data_facade = data_facade
+    def __init__(self, recipe_data_facade: RecipeDataFacade):
+        self._recipe_data_facade = recipe_data_facade
         pass
 
     @return_0
@@ -21,9 +21,10 @@ class FoodBlogMenus:
         name = input('Recipe name: ')
         if not name:
             return 0
-        self._data_facade.set_name(name)
+        self._recipe_data_facade.set_name(name)
         return 1
 
     @return_0
     def read_recipe_desc(self):
-        self._data_facade.set_desc(input('Recipe description: '))
+        self._recipe_data_facade.set_desc(input('Recipe description: '))
+        self._recipe_data_facade.save_recipe()
