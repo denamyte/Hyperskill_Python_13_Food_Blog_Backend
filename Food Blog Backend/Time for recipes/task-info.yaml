@@ -197,6 +197,15 @@ files:
     _, db_name = argv
     ini_db(db_name)
   learner_created: false
+- name: current_state_data.py
+  visible: true
+  learner_created: true
+- name: state/state_machine.py
+  visible: true
+  learner_created: true
+- name: state_machine_factory.py
+  visible: true
+  learner_created: true
 - name: ini_db.py
   visible: true
   text: |
@@ -236,13 +245,7 @@ files:
             values = [(value,) for value in DATA[name]]
             cursor.executemany(ins_sql, values)
   learner_created: false
-- name: current_state_data.py
-  visible: true
-  learner_created: true
-- name: state/state_machine.py
-  visible: true
-  learner_created: true
-- name: state_machine_factory.py
+- name: food_blog.db
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/learn/step/12375#comment
@@ -250,4 +253,4 @@ status: Solved
 feedback:
   message: Congratulations!
   time: Sat, 22 Oct 2022 15:25:12 UTC
-record: -1
+record: 2

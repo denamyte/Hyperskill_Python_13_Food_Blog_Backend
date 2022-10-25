@@ -1,5 +1,4 @@
-from dao.recipe_dao import RecipeDao
-from dao.recipe_item import RecipeItem
+from dao.recipe_dao import RecipeDao, RecipeItem
 
 
 class RecipeDataFacade:
@@ -14,6 +13,7 @@ class RecipeDataFacade:
     def set_desc(self, desc: str):
         self._recipe.desc = desc
 
-    def save_recipe(self):
-        self.recipe_dao.save_recipe(self._recipe)
+    def save_recipe(self) -> int:
+        item_id = self.recipe_dao.save_recipe(self._recipe)
         self._recipe = RecipeItem()
+        return item_id
