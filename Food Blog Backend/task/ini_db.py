@@ -10,13 +10,13 @@ NOT_NULL = {"meals": "NOT NULL",
 
 
 def ini_db(db_name: str):
-    dba = DatabaseAccess(db_name)
-    dba.cursor.execute('PRAGMA foreign_keys = ON;')
-    if not table_created(dba.cursor, 'meals'):
-        create_and_populate_helper_tables(dba.cursor)
-        create_recipe_table(dba.cursor)
-        create_serve_table(dba.cursor)
-    dba.close()
+    with DatabaseAccess(db_name) as dba:
+        dba.cursor.execute('PRAGMA foreign_keys = ON;')
+        if not table_created(dba.cursor, 'meals'):
+            create_and_populate_helper_tables(dba.cursor)
+            create_recipe_table(dba.cursor)
+            create_serve_table(dba.cursor)
+            create_quantity_table(dba.cursor)
 
 
 def table_created(cursor: Cursor, table_name: str):
@@ -53,3 +53,19 @@ def create_serve_table(cursor: Cursor):
                         FOREIGN KEY (meal_id)
                         REFERENCES meals(meal_id)
     );''')
+
+
+def create_quantity_table(cursor: Cursor):
+    cursor.execute('''CREATE TABLE quantity(
+                        quantity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        quantity INTEGER NOT NULL,
+                        recipe_id INTEGER NOT NULL,
+                        measure_id INTEGER NOT NULL,
+                        ingredient_id INTEGER NOT NULL,
+                        FOREIGN KEY (measure_id)
+                        REFERENCES measures(measure_id),
+                        FOREIGN KEY (ingredient_id)
+                        REFERENCES ingredients(ingredient_id),
+                        FOREIGN KEY (recipe_id)
+                        REFERENCES recipes(recipe_id)
+    )''')

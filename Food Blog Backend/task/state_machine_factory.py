@@ -10,6 +10,7 @@ class State(Enum):
     ENTER_RECIPE_NAME = auto()
     ENTER_RECIPE_DESC = auto()
     ENTER_MEALS_NUMBERS_FOR_DISH = auto()
+    ENTER_INGREDIENTS_QUANTITY = auto()
 
     EXIT = auto()
 
@@ -35,8 +36,13 @@ class StateMachineFactory:
                             self._menus.read_recipe_desc),
 
             StateTransition(State.ENTER_MEALS_NUMBERS_FOR_DISH.name,
-                            {0: State.ENTER_RECIPE_NAME.name},
+                            {0: State.ENTER_INGREDIENTS_QUANTITY.name},
                             self._menus.read_meals_for_dish),
+
+            StateTransition(State.ENTER_INGREDIENTS_QUANTITY.name,
+                            {0: State.ENTER_RECIPE_NAME.name,
+                             1: State.ENTER_INGREDIENTS_QUANTITY.name},
+                            self._menus.read_quantity),
 
             StateTransition(State.EXIT.name,
                             {0: ''},

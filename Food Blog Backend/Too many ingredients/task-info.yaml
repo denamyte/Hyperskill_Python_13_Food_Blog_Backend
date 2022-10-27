@@ -249,6 +249,162 @@ files:
         FoodBlogStage1().run_tests()
 
   learner_created: false
+- name: food_blog_menus.py
+  visible: true
+  text: |
+    from dao.recipe_dao import RecipeDao, RecipeItem, ServeItem, QuantityItem
+
+
+    def return_0(fn):
+        def wrapper(*args):
+            fn(*args)
+            return 0
+
+        return wrapper
+
+
+    class FoodBlogMenus:
+        def __init__(self, recipe_dao: RecipeDao):
+            self._recipe_dao = recipe_dao
+            self._current_recipe = RecipeItem()
+            self._saved_recipe_id = 0
+            meal_items = recipe_dao.read_meal_items()
+            self._meal_items_dict = {meal.id: meal for meal in meal_items}
+            self._serve_dish_for_meal_prompt = '  '.join(f'{meal.id}) {meal.name}' for meal in meal_items)
+
+        @return_0
+        def welcome_msg(self):
+            print('Pass the empty recipe name to exit.')
+
+        def read_recipe_name(self) -> int:
+            name = input('Recipe name: ')
+            if not name:
+                return 0
+            self._current_recipe.name = name
+            return 1
+
+        @return_0
+        def read_recipe_desc(self):
+            self._current_recipe.description = input('Recipe description: ')
+            self._saved_recipe_id = self._recipe_dao.save_recipe(self._current_recipe)
+            self._current_recipe = RecipeItem()
+
+        @return_0
+        def read_meals_for_dish(self):
+            raw = input(self._serve_dish_for_meal_prompt +
+                        '\nWhen the dish can be served: ')
+            meal_ids = [int(meal_id) for meal_id in raw.split()]
+            serve_items = [ServeItem(recipe_id=self._saved_recipe_id, meal_id=meal_id) for meal_id in meal_ids]
+            self._recipe_dao.save_serve_items(serve_items)
+
+        def read_quantity(self) -> int:
+            raw = input('Input quantity of ingredient <press enter to stop>: ')
+            if not raw:
+                return 0
+            q_list = raw.split()
+            [q, m, i] = q_list if len(q_list) == 3 else [q_list[0], '', q_list[1]]
+
+            measure = self._recipe_dao.get_measure_by_name(m)
+            if not measure:
+                return self.print_not_conclusive_error('measure')
+
+            ingredient = self._recipe_dao.get_ingredient_by_name(i)
+            if not ingredient:
+                return self.print_not_conclusive_error('ingredient')
+
+            q_item = QuantityItem(quantity=int(q),
+                                  recipe_id=self._saved_recipe_id,
+                                  measure_id=measure.id,
+                                  ingredient_id=ingredient.id)
+            self._recipe_dao.save_quantity_item(q_item)
+            return 1
+
+        @staticmethod
+        def print_not_conclusive_error(name):
+            print(f'The {name} is not conclusive!')
+            return 1
+  learner_created: true
+- name: state/state_machine.py
+  visible: true
+  text: |
+    from typing import Dict
+
+    from .state_transition import StateTransition
+
+
+    class StateMachineRunner:
+        """
+        A class for switching states, for the State Machine implementation,
+        until the current state becomes a terminal one
+        """
+        def __init__(self, transition_dict: Dict[str, StateTransition], initial_state: str):
+            self._transition_dict = transition_dict
+            self._state = initial_state
+
+        def run(self):
+            while len(self._state):
+                self._state = self._transition_dict.get(self._state).next_state()
+  learner_created: true
+- name: state_machine_factory.py
+  visible: true
+  text: |+
+    from enum import Enum, auto
+    from typing import Dict
+
+    from state.state_transition import StateTransition
+    from food_blog_menus import FoodBlogMenus
+
+
+    class State(Enum):
+        WELCOME_MSG = auto()
+        ENTER_RECIPE_NAME = auto()
+        ENTER_RECIPE_DESC = auto()
+        ENTER_MEALS_NUMBERS_FOR_DISH = auto()
+        ENTER_INGREDIENTS_QUANTITY = auto()
+
+        EXIT = auto()
+
+
+    class StateMachineFactory:
+
+        def __init__(self, menus: FoodBlogMenus):
+            self._menus = menus
+
+        def get_state_dict(self) -> Dict[str, StateTransition]:
+            trans_list = [
+                StateTransition(State.WELCOME_MSG.name,
+                                {0: State.ENTER_RECIPE_NAME.name},
+                                self._menus.welcome_msg),
+
+                StateTransition(State.ENTER_RECIPE_NAME.name,
+                                {0: State.EXIT.name,
+                                 1: State.ENTER_RECIPE_DESC.name},
+                                self._menus.read_recipe_name),
+
+                StateTransition(State.ENTER_RECIPE_DESC.name,
+                                {0: State.ENTER_MEALS_NUMBERS_FOR_DISH.name},
+                                self._menus.read_recipe_desc),
+
+                StateTransition(State.ENTER_MEALS_NUMBERS_FOR_DISH.name,
+                                {0: State.ENTER_INGREDIENTS_QUANTITY.name},
+                                self._menus.read_meals_for_dish),
+
+                StateTransition(State.ENTER_INGREDIENTS_QUANTITY.name,
+                                {0: State.ENTER_RECIPE_NAME.name,
+                                 1: State.ENTER_INGREDIENTS_QUANTITY.name},
+                                self._menus.read_quantity),
+
+                StateTransition(State.EXIT.name,
+                                {0: ''},
+                                lambda: 0)
+
+            ]
+            return {st.state_name: st for st in trans_list}
+
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/12377#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Wed, 26 Oct 2022 17:42:15 UTC
 record: -1
