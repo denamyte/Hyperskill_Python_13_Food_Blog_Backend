@@ -44,14 +44,6 @@ class QuantityItem:
     ingredient_id: int = 0
 
 
-RECIPES = 'recipes'
-MEALS = 'meals'
-MEASURES = 'measures'
-INGREDIENTS = 'ingredients'
-SERVE = 'serve'
-QUANTITY = 'quantity'
-
-
 class DatabaseAccess:
     def __init__(self, db_name: str):
         self._conn = connect(db_name)
@@ -77,43 +69,67 @@ class RecipeDao:
     def save_recipe(self, recipe_item: RecipeItem) -> int:
         with DatabaseAccess(self._db_name) as dba:
             item_id = dba.cursor.execute(
-                f'''INSERT INTO {RECIPES} (recipe_name, recipe_description) 
+                f'''INSERT INTO recipes (recipe_name, recipe_description) 
                     VALUES (?, ?)''', (recipe_item.name, recipe_item.description)).lastrowid
             return int(item_id)
 
-    def read_meal_items(self) -> List[MealItem]:
+    def get_meal_items(self) -> List[MealItem]:
         with DatabaseAccess(self._db_name) as dba:
-            rows = dba.cursor.execute(f'SELECT * FROM {MEALS}').fetchall()
-            meals = [MealItem(record[0], record[1]) for record in rows]
-            return meals
+            rows = dba.cursor.execute(f'SELECT * FROM meals').fetchall()
+            return [MealItem(*row) for row in rows]
 
     def save_serve_items(self, items: List[ServeItem]):
         with DatabaseAccess(self._db_name) as dba:
-            ins_sql = f'INSERT INTO {SERVE}(recipe_id, meal_id) VALUES (?, ?)'
+            ins_sql = f'INSERT INTO serve(recipe_id, meal_id) VALUES (?, ?)'
             values = ((item.recipe_id, item.meal_id,) for item in items)
             dba.cursor.executemany(ins_sql, values)
 
     def get_measure_by_name(self, name) -> MeasureItem:
         with DatabaseAccess(self._db_name) as dba:
             if name == '':
-                row = dba.cursor.execute(f'''SELECT * FROM {MEASURES}
+                row = dba.cursor.execute(f'''SELECT * FROM measures
                     WHERE measure_name='';''').fetchone()
                 return MeasureItem(row[0], row[1])
-            rows = dba.cursor.execute(f'''SELECT * FROM {MEASURES}
+            rows = dba.cursor.execute(f'''SELECT * FROM measures
                 WHERE measure_name LIKE ?;''', (name + '%',)).fetchall()
-            return MeasureItem(rows[0][0], rows[0][1]) \
+            return MeasureItem(*rows[0]) \
                 if len(rows) == 1 \
                 else None
 
     def get_ingredient_by_name(self, name) -> IngredientItem:
         with DatabaseAccess(self._db_name) as dba:
-            rows = dba.cursor.execute(f'''SELECT * FROM {INGREDIENTS}
+            rows = dba.cursor.execute(f'''SELECT * FROM ingredients
                 WHERE ingredient_name LIKE ?;''', (name + '%',)).fetchall()
-            return IngredientItem(rows[0][0], rows[0][1]) \
+            return IngredientItem(*rows[0]) \
                 if len(rows) == 1 \
                 else None
 
     def save_quantity_item(self, q: QuantityItem):
         with DatabaseAccess(self._db_name) as dba:
-            dba.cursor.execute(f'''INSERT INTO {QUANTITY} (quantity, recipe_id, measure_id, ingredient_id)
+            dba.cursor.execute(f'''INSERT INTO quantity (quantity, recipe_id, measure_id, ingredient_id)
                 VALUES (?, ?, ?, ?)''', (q.quantity, q.recipe_id, q.measure_id, q.ingredient_id))
+
+    @staticmethod
+    def in_placeholder(num: int) -> str:
+        return f"IN ({','.join('?' * num)})"
+
+    def get_recipes_by_ingredients_and_meals_names(self, ingr_names: List[str], meal_names: List[str]) -> List[RecipeItem]:
+        with DatabaseAccess(self._db_name) as dba:
+            params = (*ingr_names, len(ingr_names), *meal_names)
+            result = dba.cursor.execute(f'''
+SELECT *
+FROM recipes r
+WHERE r.recipe_id IN (SELECT q.recipe_id
+                      from quantity q
+                      WHERE q.ingredient_id IN (SELECT i.ingredient_id
+                                                FROM ingredients i
+                                                WHERE i.ingredient_name {self.in_placeholder(len(ingr_names))})
+                      GROUP BY q.recipe_id
+                      HAVING COUNT(q.ingredient_id) = ?)
+  AND r.recipe_id IN (SELECT DISTINCT s.recipe_id
+                      from serve s
+                      WHERE s.meal_id IN (SELECT m.meal_id
+                                          FROM meals m
+                                          WHERE m.meal_name {self.in_placeholder(len(meal_names))}));'''
+                                        , params)
+            return [RecipeItem(*row) for row in result.fetchall()]

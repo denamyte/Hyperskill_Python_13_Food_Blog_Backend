@@ -6,15 +6,12 @@ class FoodBlogMenus:
         self._recipe_dao = recipe_dao
         self._current_recipe = RecipeItem()
         self._saved_recipe_id = 0
-        meal_items = recipe_dao.read_meal_items()
+        meal_items = recipe_dao.get_meal_items()
         self._serve_dish_for_meal_prompt = '  '.join(f'{meal.id}) {meal.name}' for meal in meal_items)
 
-    def welcome_msg(self) -> int:
-        print('Pass the empty recipe name to exit.')
-        return 0
-
     def read_recipe_name(self) -> int:
-        name = input('Recipe name: ')
+        name = input('Pass the empty recipe name to exit.\n'
+                     'Recipe name: ')
         if not name:
             return 0
         self._current_recipe.name = name
@@ -28,7 +25,7 @@ class FoodBlogMenus:
 
     def read_meals_for_dish(self) -> int:
         raw = input(self._serve_dish_for_meal_prompt +
-                    '\nWhen the dish can be served: ')
+                    '\nEnter proposed meals separated by a space: ')
         meal_ids = [int(meal_id) for meal_id in raw.split()]
         serve_items = [ServeItem(recipe_id=self._saved_recipe_id, meal_id=meal_id) for meal_id in meal_ids]
         self._recipe_dao.save_serve_items(serve_items)

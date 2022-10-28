@@ -1,19 +1,26 @@
-from sys import argv
+import argparse
+from typing import List
 
 from ini_db import ini_db
-from dao.recipe_dao import RecipeDao
-from food_blog_menus import FoodBlogMenus
-from state_machine_factory import StateMachineFactory, State
-from state.state_machine import StateMachineRunner
+from blog_search import blog_search
+from blog_fill import blog_fill
+
+
+def split(s: str) -> List[str]:
+    return s.split(',') if s else []
+
 
 if __name__ == '__main__':
-    _, db_name = argv
+    parser = argparse.ArgumentParser()
+    parser.add_argument('db_name', help='The database name')
+    parser.add_argument('--ingredients', help='The ingredients list to search for')
+    parser.add_argument('--meals', help='The meals list to search for')
+    args = parser.parse_args()
+    db_name = args.db_name
+
     ini_db(db_name)
 
-    recipe_dao = RecipeDao(db_name)
-    food_blog_menus = FoodBlogMenus(recipe_dao)
-    state_dict = StateMachineFactory(food_blog_menus).get_state_dict()
-    initial_state = State.WELCOME_MSG.name
-    smr = StateMachineRunner(state_dict, initial_state)
-
-    smr.run()
+    if args.ingredients or args.meals:
+        blog_search(db_name, split(args.ingredients), split(args.meals))
+    else:
+        blog_fill(db_name)

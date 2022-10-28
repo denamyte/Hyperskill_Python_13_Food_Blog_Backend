@@ -22,10 +22,6 @@ class StateMachineFactory:
 
     def get_state_dict(self) -> Dict[str, StateTransition]:
         trans_list = [
-            StateTransition(State.WELCOME_MSG.name,
-                            {0: State.ENTER_RECIPE_NAME.name},
-                            self._menus.welcome_msg),
-
             StateTransition(State.ENTER_RECIPE_NAME.name,
                             {0: State.EXIT.name,
                              1: State.ENTER_RECIPE_DESC.name},
